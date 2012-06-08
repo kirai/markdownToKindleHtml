@@ -2,16 +2,25 @@
 # Description: wraps a Markdown.pl html output into an html template
 #              I use the output of this script as an input for kindlegen
 #
-# Usage: put files to be processed as parameters.
+# Usage: 
+#       Input: files to be processed as parameters.
+#       Output: standard output
 #
-# TODO: handle input parameters, add option to add text-indent or not
-#       (style it or not? bootstrap styling? markdown.css styling?
+# Example: ruby markdownToKindleHtml.rb testData/japaneseCulture_YamatoNadesiko_Draft.md
+#
+# TODO: use Rspec for testing,
+#       handle input parameters/errors,
+#       add option to add text-indent or not
+#       (style it or not? bootstrap styling? markdown.css styling? 
+#           let the user decide the desired output
 #       Handle the cover of the book and the title
+#       Error handling
 #
 # @kirai
 #
 
 require 'erb'
+require 'rdiscount'
 
 template = ERB.new(<<EOF
 <!DOCTYPE html>
@@ -44,9 +53,16 @@ def viewMarkdown(filename, template)
     puts "#{filename} does not exist."
   end
 
-  title = ""
-  body = File.read(filename) 
-  
+  fileContents = File.read(filename) 
+ 
+  body = RDiscount.new(fileContents).to_html
+
+  headers = body.scan(/(?<=<h\d>).*?(?=<\/h\d>)/)
+
+  if headers
+    title = headers.first 
+  end
+
   puts template.result(binding)
  
 end
