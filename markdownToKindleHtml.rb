@@ -1,6 +1,8 @@
+#!/usr/bin/ruby
 #
-# Description: wraps a Markdown.pl html output into an html template
-#              I use the output of this script as an input for kindlegen
+# = markdownToKindle.rb translates a Markdown file to an Html file ready to be
+#   used on a Kindle device. I use the output of this script as an input for 
+#   kindlegen
 #
 # Usage: 
 #       Input: files to be processed as parameters.
@@ -16,10 +18,12 @@
 #       Handle the cover of the book and the title
 #       Error handling
 #
-# @kirai
+# Author:: @kirai
+# License:: MIT License 
 #
 
 require 'erb'
+require 'optparse'
 require 'rdiscount'
 
 template = ERB.new(<<EOF
@@ -43,14 +47,24 @@ template = ERB.new(<<EOF
 EOF
 )
 
-def usage()
-  puts 'Usage'
-end
+# 
+# == It opens a markdown file, applies a template using ERB and outputs
+#    the result to STDOUT
+#
+# * *Args*    :
+#   - +filename+ -> the number of apples
+#   - +template+ -> ERB template
+# * *Returns* :
+#   - 
+# * *Raises* :
+#   - +ArgumentError+ -> 
+#
 
 def viewMarkdown(filename, template)
 
   if !File.exists?(filename)
-    puts "#{filename} does not exist."
+    puts "ERROR: #{filename} does not exist.\n"
+    exit
   end
 
   fileContents = File.read(filename) 
@@ -67,6 +81,44 @@ def viewMarkdown(filename, template)
  
 end
 
-ARGV.each do |arg|
-  viewMarkdown(arg, template)
+#
+# Main, parameter handling using OptionParser
+#
+if __FILE__ == $0
+
+  #Parsing options
+  options = {}
+
+  opt_parser = OptionParser.new do |opt|
+    opt.banner = "Usage: #{$0} [-sh paramValue] inputMarkdown.md"
+    opt.separator ""
+    opt.separator "Example: #{$0} --sytle markdown.css input.md > output.html"
+    opt.separator ""
+    
+    opt.on("-s", "--style style", "Stylesheet you want to apply to the output html,
+                                     it can be markdown.css or bootstrap.css") do |style|
+      if style =~ /(markdown)|(bootstrap)/
+        options[:style] = style
+      else
+        puts opt_parser
+      end
+    end
+
+    opt.on("-h","--help","Shows the help") do
+      puts opt_parser
+    end
+  end
+
+  opt_parser.parse!
+  
+  # Parsing arguments
+  unless ARGV.length >= 1
+    puts opt_parser
+  end
+
+  # Translating each file to .html
+  ARGV.each do |arg|
+    viewMarkdown(arg, template)
+  end
+
 end
