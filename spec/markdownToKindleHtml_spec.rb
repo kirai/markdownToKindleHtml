@@ -20,3 +20,9 @@ describe "testing general outputs" do
 
   end
 end
+
+describe "mkToKindleHtml class methods" do
+  it "should"
+
+  end
+end

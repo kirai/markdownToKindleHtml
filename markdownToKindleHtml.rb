@@ -26,6 +26,9 @@ require 'erb'
 require 'optparse'
 require 'rdiscount'
 
+$styleSheets = { /markdown.*/  => 'http://kevinburke.bitbucket.org/markdowncss/markdown.css',
+                 /bootstrap.*/ => 'http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css' }
+
 template = ERB.new(<<EOF
 <!DOCTYPE html>
 <html>
@@ -37,7 +40,8 @@ template = ERB.new(<<EOF
       p { text-indent : 20px; }
     -->
     </style>
-    <link href="http://kevinburke.bitbucket.org/markdowncss/markdown.css" rel="stylesheet"></link>
+
+    <link href="<%= styleSheet %>" rel="stylesheet"></link>
  
   </head>
   <body>
@@ -52,33 +56,48 @@ EOF
 #    the result to STDOUT
 #
 # * *Args*    :
-#   - +filename+ -> the number of apples
+#   - +filename+ -> markdown filename
 #   - +template+ -> ERB template
+#   - +options+  -> hash, options gathered by option parser
 # * *Returns* :
-#   - 
+#   - +html+ ->  string with the html output
+#                FALSE if something bad happened
 # * *Raises* :
 #   - +ArgumentError+ -> 
 #
 
-def viewMarkdown(filename, template)
+def mkToHtml(filename, template, options)
 
   if !File.exists?(filename)
     puts "ERROR: #{filename} does not exist.\n"
     exit
   end
 
-  fileContents = File.read(filename) 
- 
+  fileContents = File.read(filename)
+
+  #Prepare body 
   body = RDiscount.new(fileContents).to_html
 
+  #Prepare "title"
   headers = body.scan(/(?<=<h\d>).*?(?=<\/h\d>)/)
 
   if headers
     title = headers.first 
   end
 
-  puts template.result(binding)
- 
+  #Prepare "stylesheet"
+  styleSheet = ''
+  if options[:style]
+    styleSheet = $styleSheets.find{ |n,v| options[:style] =~ n}.to_a.last
+  end
+
+  #Use ERB template engine to translate to html
+  begin
+    html = template.result(binding)
+    return html
+  rescue
+    return FALSE
+  end
 end
 
 #
@@ -89,36 +108,45 @@ if __FILE__ == $0
   #Parsing options
   options = {}
 
-  opt_parser = OptionParser.new do |opt|
-    opt.banner = "Usage: #{$0} [-sh paramValue] inputMarkdown.md"
-    opt.separator ""
-    opt.separator "Example: #{$0} --sytle markdown.css input.md > output.html"
-    opt.separator ""
-    
-    opt.on("-s", "--style style", "Stylesheet you want to apply to the output html,
-                                     it can be markdown.css or bootstrap.css") do |style|
-      if style =~ /(markdown)|(bootstrap)/
-        options[:style] = style
-      else
+  begin
+    opt_parser = OptionParser.new do |opt|
+      opt.banner = "Usage: #{$0} [-sh paramValue] inputMarkdown.md"
+      opt.separator ""
+      opt.separator "Example: #{$0} --sytle markdown.css input.md > output.html"
+      opt.separator ""
+      
+      opt.on("-s", "--style style", "Stylesheet you want to apply to the output html,
+                                       it can be markdown.css or bootstrap.css") do |style|
+        if style =~ /(markdown)|(bootstrap)/
+          options[:style] = style
+        else
+          puts opt_parser
+        end
+      end
+
+      opt.on("-h", "--help", "Shows the help") do
         puts opt_parser
       end
     end
 
-    opt.on("-h","--help","Shows the help") do
-      puts opt_parser
-    end
-  end
+    opt_parser.parse!
+  rescue OptionParser::InvalidOption => e
+    puts 'Error:'
+    puts e 
+    puts "\n"
+    puts opt_parser
+    exit 1
+  end  
 
-  opt_parser.parse!
-  
   # Parsing arguments
   unless ARGV.length >= 1
     puts opt_parser
   end
 
-  # Translating each file to .html
+  # Translating each file to .html (It can translate many files at the same time)
   ARGV.each do |arg|
-    viewMarkdown(arg, template)
+    html = mkToHtml(arg, template, options)
+    puts html
   end
 
 end
