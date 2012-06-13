@@ -52,6 +52,28 @@ EOF
 )
 
 # 
+# == It manages loading markdown files, parsing them, 
+#    and transforming to html ready to be used on a
+#    Kindle device
+#
+
+class MkToKindle
+
+  def loadMarkdownFile(filename)
+    if !File.exists?(filename)
+      puts "ERROR: #{filename} does not exist.\n"
+      exit
+    end 
+    @markdownText = File.read(filename)
+  end
+
+  def getMarkdownText
+    return @markdownText
+  end
+
+end
+
+# 
 # == It opens a markdown file, applies a template using ERB and outputs
 #    the result to STDOUT
 #
@@ -67,13 +89,9 @@ EOF
 #
 
 def mkToHtml(filename, template, options)
-
-  if !File.exists?(filename)
-    puts "ERROR: #{filename} does not exist.\n"
-    exit
-  end
-
-  fileContents = File.read(filename)
+  mkToKindleParser = MkToKindle.new
+  fileContents = mkToKindleParser.loadMarkdownFile(filename)
+  fileContents = mkToKindleParser.getMarkdownText
 
   #Prepare body 
   body = RDiscount.new(fileContents).to_html
