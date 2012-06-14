@@ -1,7 +1,6 @@
 markdownToKindleHtml
 --------------------
 
-
 ### Requirements
 
   * Rdiscount -> https://github.com/rtomayko/rdiscount
@@ -31,4 +30,14 @@ General grammar rules:
        <p><a href="#chap3"><h4>Chapter 3</h4></a></p> 
        <mbp:pagebreak/>
    </code>
+ * Start chapter
+     Link with no title will replace "href" with "name"     
+
+  <code>
+     [](#chap1) ## Chapter 1 ##
+
+     ----->
+     
+     <a name="chap1"></a><h2>Chapter 1</h2>
+  </code>
  * Book cover?
