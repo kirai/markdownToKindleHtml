@@ -43,4 +43,22 @@ General grammar rules:
      
      <a name="chap1"></a><h2>Chapter 1</h2>
 ```
+ * Set starting point
+
+```html
+<div id="cover"> 
+<center> 
+<a name="start" /><img src=cover-kindle.jpg></a> 
+</center> 
+</div>
+```
+
  * Book cover?
+ * 
+
+
+### About Kindle Publishing (General info)
+
+http://sprott.physics.wisc.edu/pickover/kindle-guide.pdf
+
+http://www.unrulyguides.com/2012/05/kindle-formatting-kindle-book-cover/
