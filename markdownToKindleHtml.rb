@@ -4,6 +4,9 @@
 #   used on a Kindle device. I use the output of this script as an input for 
 #   kindlegen
 #
+# Kindle tags:
+#   http://kindleformatting.com/book/files/KindleHTMLtags.pdf
+#
 # Usage: 
 #       Input: files to be processed as parameters.
 #       Output: standard output
@@ -73,6 +76,7 @@ class MkToKindle
 
 end
 
+
 # 
 # == It opens a markdown file, applies a template using ERB and outputs
 #    the result to STDOUT
@@ -90,7 +94,7 @@ end
 
 def mkToHtml(filename, template, options)
   mkToKindleParser = MkToKindle.new
-  fileContents = mkToKindleParser.loadMarkdownFile(filename)
+  mkToKindleParser.loadMarkdownFile(filename)
   fileContents = mkToKindleParser.getMarkdownText
 
   #Prepare body 
@@ -103,6 +107,13 @@ def mkToHtml(filename, template, options)
     title = headers.first 
   end
 
+  # Try replacing with regex lamba combination
+  a = 'asdfasdf'
+  hash = {/(\d+) years/ => lambda { "#{$1.to_f * 2} a"},
+          /Nadesiko/   => lambda {"Yamato"} }
+ 
+  p hash.find { |k, v| body =~ k }.to_a.last.call
+   
   #Prepare "stylesheet"
   styleSheet = ''
   if options[:style]
