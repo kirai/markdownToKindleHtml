@@ -1,4 +1,5 @@
 #!/usr/bin/ruby
+# -*- encoding : utf-8 -*-
 #
 # = markdownToKindle.rb translates a Markdown file to an Html file ready to be
 #   used on a Kindle device. I use the output of this script as an input for 
@@ -6,6 +7,7 @@
 #
 # Kindle tags:
 #   http://kindleformatting.com/book/files/KindleHTMLtags.pdf
+#   https://kdp.amazon.com/self-publishing/help?topicId=A1B8OEIMUN0HFY
 #
 # Usage: 
 #       Input: files to be processed as parameters.
@@ -25,6 +27,7 @@
 # License:: MIT License 
 #
 
+require 'rubygems'
 require 'erb'
 require 'optparse'
 require 'rdiscount'
@@ -101,18 +104,18 @@ def mkToHtml(filename, template, options)
   body = RDiscount.new(fileContents).to_html
 
   #Prepare "title"
-  headers = body.scan(/(?<=<h\d>).*?(?=<\/h\d>)/)
+  #headers = body.scan(/(?<=<h\d>).*?(?=<\/h\d>)/)
 
   if headers
     title = headers.first 
   end
 
   # Try replacing with regex lamba combination
-  a = 'asdfasdf'
-  hash = {/(\d+) years/ => lambda { "#{$1.to_f * 2} a"},
-          /Nadesiko/   => lambda {"Yamato"} }
+  #a = 'asdfasdf'
+  #hash = {/(\d+) years/ => lambda { "#{$1.to_f * 2} a"},
+  #        /Nadesiko/   => lambda {"Yamato"} }
  
-  p hash.find { |k, v| body =~ k }.to_a.last.call
+  #p hash.find { |k, v| body =~ k }.to_a.last.call
    
   #Prepare "stylesheet"
   styleSheet = ''
