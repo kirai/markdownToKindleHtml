@@ -99,9 +99,10 @@ def mkToHtml(filename, template, options)
   mkToKindleParser = MkToKindle.new
   mkToKindleParser.loadMarkdownFile(filename)
   fileContents = mkToKindleParser.getMarkdownText
-
+  
   #Prepare body 
-  body = RDiscount.new(fileContents).to_html
+  body = RDiscount.new(fileContents, :smart, :filter_html)
+  body = body.to_html
 
   #Prepare "title"
   #headers = body.scan(/(?<=<h\d>).*?(?=<\/h\d>)/)
